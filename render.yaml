@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ai-image-generator
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "./start.sh"
+    envVars:
+      - key: CREDENTIAL_PATH_OF_GCP
+        sync: false
+      - key: PROJECT_ID
+        sync: false
+      - key: REGION
+        sync: false
+      - key: SECRET_KEY
+        sync: false
