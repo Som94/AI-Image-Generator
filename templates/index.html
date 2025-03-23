@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Image Generator</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../static/assets/img/favicon.ico" rel="icon">
+  <link href="../static/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+
+  <!-- Vendor CSS Files -->
+  <link href="../static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="../static/assets/css/main.css" rel="stylesheet">
+
+</head>
+
+<body class="service-details-page">
+
+
+  <main class="main">
+    <!-- Page Title -->
+    <div class="page-title dark-background">
+      <div class="container d-lg-flex justify-content-between align-items-center">
+        <h1 class="mb-2 mb-lg-0">AI Image Generator</h1>
+        <!-- <nav class="breadcrumbs">
+          <ol>
+            <li><a href="index.html">Home</a></li>
+            <li class="current">Service Details</li>
+          </ol>
+        </nav> -->
+      </div>
+    </div>
+    <!-- End Page Title -->
+
+    <!-- Service Details Section -->
+    <section id="service-details" class="service-details section">
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="services-list">
+              <form id="imageForm" action="/generate" method="post" onsubmit="disableButtons()">
+                <div class="form-group">
+                  <input type="text" id="desc" name="desc" placeholder="Enter image description..." required>
+                </div>
+                <button type="submit" id="submitBtn">Generate Image</button>
+              </form>
+            </div>
+
+            <h4>AI-Powered Image Generation</h4>
+            <p>Generate stunning images with AI by simply describing what you need. Leverage cutting-edge technology to
+              bring your ideas to life instantly.</p>
+          </div>
+
+          <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
+            {% if pict_url %}
+            <div class="image-container">
+              <img src="{{ pict_url }}" alt="" class="img-fluid services-img">
+              <!-- <img src="../static/assets/img/services.jpg" alt="" class="img-fluid services-img"> -->
+              <br>
+              <a id="downloadBtn" class="download-btn" href="{{ pict_url }}" download="generated_image.png">Download
+                Image</a>
+            </div>
+            <script>
+              document.getElementById("downloadBtn").style.display = "inline-block";
+            </script>
+            {% else %}
+            <div class="image-container">
+              <img src="{{ url_for('static', filename='../static/assets/img/services.jpg') }}" alt=""
+                class="img-fluid services-img">
+            </div>
+            {% endif %}
+
+            <h3>Enhancing Business Efficiency with Cutting-Edge Solutions</h3>
+            <p>
+              In today's fast-paced digital world, businesses need innovative solutions to streamline operations and
+              drive growth. Our advanced technology and data-driven strategies empower organizations to achieve
+              efficiency and scalability.
+            </p>
+            <ul>
+              <li><i class="bi bi-check-circle"></i> <span>Automated workflows for seamless operations.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Data-driven insights for better decision-making.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Secure and scalable cloud-based solutions.</span></li>
+            </ul>
+            <p>
+              Our team of experts specializes in delivering customized solutions tailored to your business needs. We
+              help you optimize processes, enhance customer experiences, and stay ahead of the competition.
+            </p>
+            <p>
+              Unlock new opportunities with our cutting-edge technology and innovative strategies. Let’s build a
+              smarter, more efficient future together.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- /Service Details Section -->
+
+  </main>
+
+  <footer id="footer" class="footer position-relative light-background">
+
+    <div class="container">
+      <div class="copyright text-center">
+        <p>© <span>Copyright</span> <strong class="px-1 sitename">Somanath Ojha</strong> <span>All Rights
+            Reserved</span></p>
+      </div>
+      <div class="credits">
+        Designed & Developed by <a href="#">Som</a>
+      </div>
+    </div>
+
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Main JS File -->
+  <script src="../static/assets/js/main.js"></script>
+
+</body>
+
+</html>
