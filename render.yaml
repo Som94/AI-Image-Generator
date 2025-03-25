@@ -2,14 +2,12 @@ services:
   - type: web
     name: ai-image-generator
     runtime: python
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: |
+      apt-get update && apt-get install -y google-chrome-stable
+      pip install -r requirements.txt
     startCommand: "./start.sh"
     envVars:
-      - key: CREDENTIAL_PATH_OF_GCP
+      - key: USERNAME
         sync: false
-      - key: PROJECT_ID
-        sync: false
-      - key: REGION
-        sync: false
-      - key: SECRET_KEY
+      - key: PASSWORD
         sync: false

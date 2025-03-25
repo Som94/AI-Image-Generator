@@ -17,8 +17,7 @@ logging.basicConfig(
 
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
-print(USERNAME, PASSWORD) 
-print(USERNAME, PASSWORD) 
+ 
 if not USERNAME or not PASSWORD:
     logging.error("Missing environment variables: USERNAME and/or PASSWORD.")
     raise ValueError("USERNAME and PASSWORD must be set as environment variables.")
@@ -70,7 +69,6 @@ def generate_image():
     response = {"status": False, "message": "", "data": []}
     prompt = request.form.get("desc", "").strip()
     print("prompt ====> ")
-    print(USERNAME)
     print(prompt)
     if not prompt:
         logging.warning("Empty prompt received.")
