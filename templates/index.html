@@ -5,13 +5,10 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Image Generator</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
 
   <!-- Favicons -->
   <link href="../static/assets/img/favicon.ico" rel="icon">
   <link href="../static/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
 
   <!-- Vendor CSS Files -->
   <link href="../static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -20,40 +17,107 @@
   <!-- Main CSS File -->
   <link href="../static/assets/css/main.css" rel="stylesheet">
 
+  <style>
+    .loader-div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      /* Ensure it takes full width */
+      height: 600px;
+      /* Keep height */
+      position: relative;
+    }
+
+    .loader {
+      display: none;
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      position: absolute;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .image-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .image-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .download-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 8px;
+      border-radius: 50%;
+      text-decoration: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .download-btn:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .services-img {
+      max-width: 100%;
+      border-radius: 5px;
+    }
+
+    .enhancing-div {
+      margin-top: 10px;
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
 </head>
 
 <body class="service-details-page">
-
 
   <main class="main">
     <!-- Page Title -->
     <div class="page-title dark-background">
       <div class="container d-lg-flex justify-content-between align-items-center">
         <h1 class="mb-2 mb-lg-0">AI Image Generator</h1>
-        <!-- <nav class="breadcrumbs">
-          <ol>
-            <li><a href="index.html">Home</a></li>
-            <li class="current">Service Details</li>
-          </ol>
-        </nav> -->
       </div>
     </div>
-    <!-- End Page Title -->
 
     <!-- Service Details Section -->
     <section id="service-details" class="service-details section">
-
       <div class="container">
-
         <div class="row gy-4">
-
           <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
             <div class="services-list">
-              <form id="imageForm" action="/generate" method="post" onsubmit="disableButtons()">
+              <form id="imageForm">
                 <div class="form-group">
                   <input type="text" id="desc" name="desc" placeholder="Enter image description..." required>
                 </div>
-                <button type="submit" id="submitBtn">Generate Image</button>
+                <button id="submitBtn">Generate Image</button>
               </form>
             </div>
 
@@ -63,55 +127,38 @@
           </div>
 
           <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
-            {% if pict_url %}
-            <div class="image-container">
-              <img src="{{ pict_url }}" alt="" class="img-fluid services-img">
-              <!-- <img src="../static/assets/img/services.jpg" alt="" class="img-fluid services-img"> -->
-              <br>
-              <a id="downloadBtn" class="download-btn" href="{{ pict_url }}" download="generated_image.png">Download
-                Image</a>
+            <div class="loader-div" id="loader-div-id">
+              <!-- Loader -->
+              <div id="loader" class="loader"></div>
+              <!-- Image Gallery -->
+              <div class="image-container" id="imageContainer">
+                <div class="image-wrapper">
+                  <img src="{{ url_for('static', filename='../static/assets/img/services.jpg') }}"
+                    alt="Placeholder Image" class="img-fluid services-img">
+                </div>
+              </div>
             </div>
-            <script>
-              document.getElementById("downloadBtn").style.display = "inline-block";
-            </script>
-            {% else %}
-            <div class="image-container">
-              <img src="{{ url_for('static', filename='../static/assets/img/services.jpg') }}" alt=""
-                class="img-fluid services-img">
+            <div class="enhancing-div">
+              <h3>Enhancing Business Efficiency with Cutting-Edge Solutions</h3>
+              <p>
+                In today's fast-paced digital world, businesses need innovative solutions to streamline operations and
+                drive growth. Our advanced technology and data-driven strategies empower organizations to achieve
+                efficiency and scalability.
+              </p>
+              <ul>
+                <li><i class="bi bi-check-circle"></i> <span>Automated workflows for seamless operations.</span></li>
+                <li><i class="bi bi-check-circle"></i> <span>Data-driven insights for better decision-making.</span>
+                </li>
+                <li><i class="bi bi-check-circle"></i> <span>Secure and scalable cloud-based solutions.</span></li>
+              </ul>
             </div>
-            {% endif %}
-
-            <h3>Enhancing Business Efficiency with Cutting-Edge Solutions</h3>
-            <p>
-              In today's fast-paced digital world, businesses need innovative solutions to streamline operations and
-              drive growth. Our advanced technology and data-driven strategies empower organizations to achieve
-              efficiency and scalability.
-            </p>
-            <ul>
-              <li><i class="bi bi-check-circle"></i> <span>Automated workflows for seamless operations.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Data-driven insights for better decision-making.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Secure and scalable cloud-based solutions.</span></li>
-            </ul>
-            <p>
-              Our team of experts specializes in delivering customized solutions tailored to your business needs. We
-              help you optimize processes, enhance customer experiences, and stay ahead of the competition.
-            </p>
-            <p>
-              Unlock new opportunities with our cutting-edge technology and innovative strategies. Let’s build a
-              smarter, more efficient future together.
-            </p>
           </div>
-
         </div>
-
       </div>
-
-    </section><!-- /Service Details Section -->
-
+    </section>
   </main>
 
   <footer id="footer" class="footer position-relative light-background">
-
     <div class="container">
       <div class="copyright text-center">
         <p>© <span>Copyright</span> <strong class="px-1 sitename">Somanath Ojha</strong> <span>All Rights
@@ -121,18 +168,77 @@
         Designed & Developed by <a href="#">Som</a>
       </div>
     </div>
-
   </footer>
 
   <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
-      class="bi bi-arrow-up-short"></i></a>
-
-  <!-- Preloader -->
-  <div id="preloader"></div>
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+    <i class="bi bi-arrow-up-short"></i>
+  </a>
 
   <!-- Main JS File -->
-  <script src="../static/assets/js/main.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
+  <script>
+    function startLoading() {
+      document.getElementById("loader").style.display = "block";
+      document.getElementById("imageContainer").classList.add("hidden");
+    }
+
+
+    $(document).ready(function () {
+      $("#imageForm").submit(function (event) {
+        event.preventDefault();
+
+        var desc = $("#desc").val();
+        if (desc.length > 0) {
+          // $("loader-div-id").addClass("loader-div");
+          $("#loader").show();
+          $("#imageContainer").addClass("hidden");
+
+          $.ajax({
+            url: window.location.origin + "/generate",
+            type: "POST",
+            data: { desc: desc },
+            success: function (result) {
+              $("#loader").hide();
+              $("#imageContainer").removeClass("hidden");
+              // $("loader-div-id").removeClass("loader-div");
+              if (result.status) {
+                $("#desc").val("");
+                let imgContainer = $("#imageContainer");
+                imgContainer.html("");
+
+                result.data.forEach(imgUrl => {
+                  imgContainer.append(`
+                <div class="image-wrapper">
+                  <a class="download-btn" href="${imgUrl}" download="generated_image.png">
+                    <i class="bi bi-download"></i>
+                  </a>
+                  <img src="${imgUrl}" alt="Generated Image" class="img-fluid services-img">
+                </div>
+              `);
+                });
+              } else {
+                $("#loader").hide();
+                $("#imageContainer").removeClass("hidden");
+                alert("Failed to generate image.");
+              }
+            },
+            error: function (xhr, status, error) {
+              $("#loader").hide();
+              $("#imageContainer").removeClass("hidden");
+              console.error("AJAX Error: ", status, error);
+            }
+          });
+        } else {
+          alert("Please enter an image description.");
+        }
+      });
+    });
+
+
+  </script>
+  <!-- <script src="../static/assets/js/main.js"></script> -->
 
 </body>
 

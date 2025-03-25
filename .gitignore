@@ -2,3 +2,4 @@
 .env
 venv/
 elite-protocol-vertex-ai-service-ac.json
+mainv.py
