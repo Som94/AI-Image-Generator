@@ -1,7 +1,8 @@
 import logging
 import os
-from dotenv import load_dotenv
+
 import requests
+from dotenv import load_dotenv
 from flask import Flask, Response, make_response, render_template, request
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -10,6 +11,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+
 load_dotenv()
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -17,7 +19,7 @@ logging.basicConfig(
 
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
- 
+
 if not USERNAME or not PASSWORD:
     logging.error("Missing environment variables: USERNAME and/or PASSWORD.")
     raise ValueError("USERNAME and PASSWORD must be set as environment variables.")
@@ -34,6 +36,11 @@ def init_browser():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
+    ########## for prod ##########
+    chrome_binary_path = "/usr/bin/google-chrome-stable"
+    if os.path.exists(chrome_binary_path):
+        options.binary_location = chrome_binary_path
+    # =====================================
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     return driver
