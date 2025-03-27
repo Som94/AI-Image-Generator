@@ -38,7 +38,7 @@ def init_browser():
 
     ########## for prod ##########
     # chrome_binary_path = "/usr/bin/google-chrome-stable"
-    chrome_binary_path = "/usr/bin/chromium-browser" 
+    chrome_binary_path = "/usr/bin/google-chrome"
     if os.path.exists(chrome_binary_path):
         options.binary_location = chrome_binary_path
     # =====================================
