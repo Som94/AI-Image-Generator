@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 
 import requests
 from dotenv import load_dotenv
@@ -11,7 +10,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 
 load_dotenv()
 logging.basicConfig(
@@ -37,17 +35,19 @@ def init_browser():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # Find Chrome installation dynamically
-    chrome_binary_path = shutil.which("google-chrome") or shutil.which("chrome")
-    print("chrome_binary_path ====> ", chrome_binary_path)
-    if not chrome_binary_path:
-        logging.error("Chrome is not installed on the server!")
-        raise FileNotFoundError("Chrome binary not found.")
+    ########## for prod ##########
+    # chrome_binary_path = "/usr/bin/google-chrome-stable"
+    chrome_binary_path = "/usr/bin/google-chrome"
+    if os.path.exists(chrome_binary_path):
+        print("Chrome exist")
+        options.binary_location = chrome_binary_path
+    # =====================================
+    chrome_path = "/usr/bin/google-chrome"  # Adjust if necessary
+    chrome_driver_path = "/opt/render/.wdm/drivers/chromedriver/linux64/114.0.5735.90"
 
-    logging.info(f"Using Chrome binary at: {chrome_binary_path}")
-    options.binary_location = chrome_binary_path
-
-    service = Service(ChromeDriverManager().install())
+    options.binary_location = chrome_path  # Explicitly set Chrome binary path
+    service = Service(chrome_driver_path)
+    # service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
@@ -81,15 +81,15 @@ def home():
 def generate_image():
     response = {"status": False, "message": "", "data": []}
     prompt = request.form.get("desc", "").strip()
-    logging.info(f"Prompt received: {prompt}")
-
+    print("prompt ====> ")
+    print(prompt)
     if not prompt:
         logging.warning("Empty prompt received.")
         response["message"] = "Prompt cannot be empty"
         return make_response(response)
 
+    driver = init_browser()
     try:
-        driver = init_browser()
         login_to_bing(driver)
 
         driver.get("https://www.bing.com/create")
@@ -105,13 +105,14 @@ def generate_image():
         )
 
         images = driver.find_elements(By.CSS_SELECTOR, "img.mimg")[:4]
+
         pict_url = [
             img.get_attribute("src")
             for img in images
             if img.get_attribute("src").startswith("http")
         ]
 
-        logging.info(f"Generated image URLs: {pict_url}")
+        logging.info(f"Generated image URL: {pict_url}")
         if pict_url:
             response["status"] = True
             response["message"] = "Image generated successfully!"
