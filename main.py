@@ -40,6 +40,7 @@ def init_browser():
     # chrome_binary_path = "/usr/bin/google-chrome-stable"
     chrome_binary_path = "/usr/bin/google-chrome"
     if os.path.exists(chrome_binary_path):
+        print("Chrome exists....123")
         options.binary_location = chrome_binary_path
     # =====================================
     service = Service(ChromeDriverManager().install())
