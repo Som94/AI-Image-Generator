@@ -37,7 +37,8 @@ def init_browser():
     options.add_argument("--disable-dev-shm-usage")
 
     ########## for prod ##########
-    chrome_binary_path = "/usr/bin/google-chrome-stable"
+    # chrome_binary_path = "/usr/bin/google-chrome-stable"
+    chrome_binary_path = "/usr/bin/chromium-browser" 
     if os.path.exists(chrome_binary_path):
         options.binary_location = chrome_binary_path
     # =====================================
