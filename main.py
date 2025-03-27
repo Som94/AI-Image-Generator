@@ -10,6 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 load_dotenv()
 logging.basicConfig(
@@ -28,31 +29,28 @@ app = Flask(__name__)
 
 def init_browser():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless=new")
+    options.add_argument("--headless")  # Use standard headless mode
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")
-    options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    ########## for prod ##########
-    # chrome_binary_path = "/usr/bin/google-chrome-stable"
-    chrome_binary_path = "/usr/bin/google-chrome"
+    # Detect Chrome binary location dynamically
+    chrome_binary_path = os.environ.get("GOOGLE_CHROME_BIN", "/usr/bin/google-chrome")
     if os.path.exists(chrome_binary_path):
-        print("Chrome exist")
         options.binary_location = chrome_binary_path
-    # =====================================
-    chrome_path = "/usr/bin/google-chrome"  # Adjust if necessary
-    chrome_driver_path = "/opt/render/.wdm/drivers/chromedriver/linux64/114.0.5735.90"
 
-    options.binary_location = chrome_path  # Explicitly set Chrome binary path
-    service = Service(chrome_driver_path)
-    # service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
+    try:
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+        return driver
+    except Exception as e:
+        logging.error(f"Failed to initialize Chrome WebDriver: {e}")
+        raise
 
 
 def login_to_bing(driver):
+    print("Driver ===>111111 ", driver)
     try:
         driver.get("https://login.live.com/")
         WebDriverWait(driver, 10).until(
@@ -81,15 +79,16 @@ def home():
 def generate_image():
     response = {"status": False, "message": "", "data": []}
     prompt = request.form.get("desc", "").strip()
-    print("prompt ====> ")
+    print("prompt ====> 1111 ")
     print(prompt)
     if not prompt:
         logging.warning("Empty prompt received.")
         response["message"] = "Prompt cannot be empty"
         return make_response(response)
-
-    driver = init_browser()
+    driver = None
     try:
+        driver = init_browser()
+        print("Driver ===> ", driver)
         login_to_bing(driver)
 
         driver.get("https://www.bing.com/create")
