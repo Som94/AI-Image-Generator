@@ -28,16 +28,6 @@ if not USERNAME or not PASSWORD:
 app = Flask(__name__)
 
 
-def find_chrome_binary():
-    """Find Chrome binary path dynamically."""
-    chrome_binaries = ["google-chrome-stable", "google-chrome", "chromium", "chrome"]
-    for binary in chrome_binaries:
-        chrome_path = shutil.which(binary)
-        if chrome_path:
-            return chrome_path
-    return None  # Chrome is not installed
-
-
 def init_browser():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
@@ -47,14 +37,15 @@ def init_browser():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    chrome_path = find_chrome_binary()
-    print("Line no 51 ===> ", chrome_path)
-    if chrome_path:
-        logging.info(f"Chrome found at: {chrome_path}")
-        options.binary_location = chrome_path
-    else:
+    # Find Chrome installation dynamically
+    chrome_binary_path = shutil.which("google-chrome") or shutil.which("chrome")
+    print("chrome_binary_path ====> ", chrome_binary_path)
+    if not chrome_binary_path:
         logging.error("Chrome is not installed on the server!")
-        raise RuntimeError("Chrome binary not found.")
+        raise FileNotFoundError("Chrome binary not found.")
+
+    logging.info(f"Using Chrome binary at: {chrome_binary_path}")
+    options.binary_location = chrome_binary_path
 
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
