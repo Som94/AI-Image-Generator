@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 
 import requests
 from dotenv import load_dotenv
@@ -27,6 +28,16 @@ if not USERNAME or not PASSWORD:
 app = Flask(__name__)
 
 
+def find_chrome_binary():
+    """Find Chrome binary path dynamically."""
+    chrome_binaries = ["google-chrome-stable", "google-chrome", "chromium", "chrome"]
+    for binary in chrome_binaries:
+        chrome_path = shutil.which(binary)
+        if chrome_path:
+            return chrome_path
+    return None  # Chrome is not installed
+
+
 def init_browser():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
@@ -36,13 +47,15 @@ def init_browser():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    ########## for prod ##########
-    # chrome_binary_path = "/usr/bin/google-chrome-stable"
-    chrome_binary_path = "/usr/bin/google-chrome"
-    if os.path.exists(chrome_binary_path):
-        print("Chrome exists....123")
-        options.binary_location = chrome_binary_path
-    # =====================================
+    chrome_path = find_chrome_binary()
+    print("Line no 51 ===> ", chrome_path)
+    if chrome_path:
+        logging.info(f"Chrome found at: {chrome_path}")
+        options.binary_location = chrome_path
+    else:
+        logging.error("Chrome is not installed on the server!")
+        raise RuntimeError("Chrome binary not found.")
+
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     return driver
@@ -77,15 +90,15 @@ def home():
 def generate_image():
     response = {"status": False, "message": "", "data": []}
     prompt = request.form.get("desc", "").strip()
-    print("prompt ====> ")
-    print(prompt)
+    logging.info(f"Prompt received: {prompt}")
+
     if not prompt:
         logging.warning("Empty prompt received.")
         response["message"] = "Prompt cannot be empty"
         return make_response(response)
 
-    driver = init_browser()
     try:
+        driver = init_browser()
         login_to_bing(driver)
 
         driver.get("https://www.bing.com/create")
@@ -101,14 +114,13 @@ def generate_image():
         )
 
         images = driver.find_elements(By.CSS_SELECTOR, "img.mimg")[:4]
-
         pict_url = [
             img.get_attribute("src")
             for img in images
             if img.get_attribute("src").startswith("http")
         ]
 
-        logging.info(f"Generated image URL: {pict_url}")
+        logging.info(f"Generated image URLs: {pict_url}")
         if pict_url:
             response["status"] = True
             response["message"] = "Image generated successfully!"
