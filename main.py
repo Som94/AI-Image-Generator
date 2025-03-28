@@ -1,6 +1,5 @@
 import logging
 import os
-import subprocess
 
 import requests
 from dotenv import load_dotenv
@@ -11,26 +10,24 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
+
+# def install_chrome():
+#     try:
+#         subprocess.run(
+#             "apt-get update && apt-get install -y wget unzip && "
+#             "wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && "
+#             "apt-get install -y ./google-chrome-stable_current_amd64.deb && "
+#             "rm google-chrome-stable_current_amd64.deb",
+#             shell=True,
+#             check=True,
+#         )
+#         print(" Chrome installed successfully!")
+#     except subprocess.CalledProcessError as e:
+#         print(" Chrome installation failed:", e)
 
 
-def install_chrome():
-    try:
-        subprocess.run(
-            "apt-get update && apt-get install -y wget unzip && "
-            "wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && "
-            "apt-get install -y ./google-chrome-stable_current_amd64.deb && "
-            "rm google-chrome-stable_current_amd64.deb",
-            shell=True,
-            check=True,
-        )
-        print(" Chrome installed successfully!")
-    except subprocess.CalledProcessError as e:
-        print(" Chrome installation failed:", e)
-
-
-# Run Chrome installation before launching WebDriver
-install_chrome()
+# # Run Chrome installation before launching WebDriver
+# install_chrome()
 
 load_dotenv()
 logging.basicConfig(
@@ -56,14 +53,16 @@ def init_browser():
     options.add_argument("--disable-dev-shm-usage")
 
     # Set correct Chrome binary path for Render
-    chrome_binary_path = "/usr/bin/google-chrome"
-    if os.path.exists(chrome_binary_path):
-        options.binary_location = chrome_binary_path
-    else:
-        logging.error("Chrome binary not found!")
+    # chrome_binary_path = "/usr/bin/google-chrome"
+    # if os.path.exists(chrome_binary_path):
+    #     options.binary_location = "chrome_binary_path"
+    # else:
+    #     logging.error("Chrome binary not found!")
 
+    options.binary_location = "/usr/bin/chromium-browser"
     try:
-        service = Service(ChromeDriverManager().install())
+        # service = Service(ChromeDriverManager().install())
+        service = Service("/opt/render/.wdm/drivers/chromedriver/linux64/114.0.5735.90")
         driver = webdriver.Chrome(service=service, options=options)
         return driver
     except Exception as e:
