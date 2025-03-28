@@ -1,5 +1,6 @@
 import logging
 import os
+import subprocess
 
 import requests
 from dotenv import load_dotenv
@@ -11,6 +12,25 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+
+
+def install_chrome():
+    try:
+        subprocess.run(
+            "apt-get update && apt-get install -y wget unzip && "
+            "wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && "
+            "apt-get install -y ./google-chrome-stable_current_amd64.deb && "
+            "rm google-chrome-stable_current_amd64.deb",
+            shell=True,
+            check=True,
+        )
+        print(" Chrome installed successfully!")
+    except subprocess.CalledProcessError as e:
+        print(" Chrome installation failed:", e)
+
+
+# Run Chrome installation before launching WebDriver
+install_chrome()
 
 load_dotenv()
 logging.basicConfig(
