@@ -123,24 +123,33 @@ def init_browser():
 def login_to_bing(driver):
     logging.info("Logging into Bing...")
     try:
-        print("USERNAME ===> ", USERNAME)
-        print("PASSWORD ===> ", PASSWORD)
         driver.get("https://login.live.com/")
-        WebDriverWait(driver, 20).until(
+
+        # Enter Username
+        WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.ID, "i0116"))
         ).send_keys(USERNAME + Keys.RETURN)
-        WebDriverWait(driver, 20).until(
+
+        # Enter Password
+        WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.ID, "i0118"))
         ).send_keys(PASSWORD + Keys.RETURN)
+
+        # Handle 'Stay Signed In' Prompt (if it appears)
         try:
-            WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.ID, "idBtn_Back"))
+            WebDriverWait(driver, 20).until(
+                EC.element_to_be_clickable((By.ID, "idBtn_Back"))
             ).click()
+            logging.info("Clicked 'Stay Signed In' button.")
         except Exception:
             logging.info("No 'Stay signed in' prompt detected.")
+
+        logging.info(" Bing Login Successful!")
+
     except Exception as e:
-        logging.error(f"Login to Bing failed: {e}")
-        raise
+        logging.error(f"Bing Login Failed: {e}")
+        driver.save_screenshot("bing_login_error.png")
+        raise e
 
 
 @app.route("/", methods=["GET"])
@@ -165,27 +174,29 @@ def generate_image():
             raise RuntimeError("WebDriver initialization failed.")
 
         login_to_bing(driver)
-
+        print("login_to_bing SUCCESSFULLY")
         driver.get("https://www.bing.com/create")
+        print("Line no 201")
         WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.ID, "sb_form_q"))
         )
-
+        print("Line no 205")
         search_box = driver.find_element(By.ID, "sb_form_q")
+        print("Line no 207")
         search_box.send_keys(prompt + Keys.RETURN)
-
+        print("Line no 209")
         WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "img.mimg"))
         )
-
+        print("Line no 213")
         images = driver.find_elements(By.CSS_SELECTOR, "img.mimg")[:4]
-
+        print("Line no 215")
         pict_url = [
             img.get_attribute("src")
             for img in images
             if img.get_attribute("src") and img.get_attribute("src").startswith("http")
         ]
-
+        print("Line no 221")
         logging.info(f"Generated image URLs: {pict_url}")
         if pict_url:
             response["status"] = True
