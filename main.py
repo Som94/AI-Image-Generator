@@ -97,11 +97,12 @@ app = Flask(__name__)
 
 def init_browser():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080")
+    options.add_argument("--disable-blink-features=AutomationControlled")
 
     if os.path.exists(chrome_binary):
         options.binary_location = chrome_binary
@@ -120,6 +121,8 @@ def init_browser():
 def login_to_bing(driver):
     logging.info("Logging into Bing...")
     try:
+        print("USERNAME ===> ", USERNAME)
+        print("PASSWORD ===> ", PASSWORD)
         driver.get("https://login.live.com/")
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "i0116"))
