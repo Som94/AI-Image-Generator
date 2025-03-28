@@ -11,22 +11,39 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 def install_chrome():
-    try:
+    chrome_version = "122.0.6261.111"
+    chrome_zip = "chrome-linux64.zip"
+    chromedriver_zip = "chromedriver-linux64.zip"
+
+    chrome_path = "/usr/local/bin/google-chrome"
+    chromedriver_path = "/usr/local/bin/chromedriver"
+
+    if not os.path.exists(chrome_path):
+        logging.info("Downloading and installing Chrome...")
         subprocess.run(
-            "apt-get update && apt-get install -y wget unzip && "
-            "wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && "
-            "apt-get install -y ./google-chrome-stable_current_amd64.deb && "
-            "rm google-chrome-stable_current_amd64.deb",
+            f"wget -q -O {chrome_zip} https://storage.googleapis.com/chrome-for-testing-public/{chrome_version}/linux64/{chrome_zip} && "
+            f"unzip -o {chrome_zip} -d /usr/local/bin/ && "
+            f"mv /usr/local/bin/chrome-linux64/google-chrome {chrome_path} && "
+            f"chmod +x {chrome_path} && "
+            f"rm -rf {chrome_zip} /usr/local/bin/chrome-linux64",
             shell=True,
             check=True,
         )
-        print(" Chrome installed successfully!")
-    except subprocess.CalledProcessError as e:
-        print(" Chrome installation failed:", e)
+
+    if not os.path.exists(chromedriver_path):
+        logging.info("Downloading and installing ChromeDriver...")
+        subprocess.run(
+            f"wget -q -O {chromedriver_zip} https://storage.googleapis.com/chrome-for-testing-public/{chrome_version}/linux64/{chromedriver_zip} && "
+            f"unzip -o {chromedriver_zip} -d /usr/local/bin/ && "
+            f"mv /usr/local/bin/chromedriver-linux64/chromedriver {chromedriver_path} && "
+            f"chmod +x {chromedriver_path} && "
+            f"rm -rf {chromedriver_zip} /usr/local/bin/chromedriver-linux64",
+            shell=True,
+            check=True,
+        )
 
 
 # Run Chrome installation before launching WebDriver
@@ -49,21 +66,23 @@ app = Flask(__name__)
 
 def init_browser():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Use standard headless mode
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=1920,1080")
 
-    # Set correct Chrome binary path for Render
-    chrome_binary_path = "/usr/bin/google-chrome"
+    # Use the pre-downloaded Chrome binary
+    chrome_binary_path = "/usr/local/bin/google-chrome"
+    chromedriver_binary_path = "/usr/local/bin/chromedriver"
+
     if os.path.exists(chrome_binary_path):
         options.binary_location = chrome_binary_path
     else:
         logging.error("Chrome binary not found!")
 
     try:
-        service = Service(ChromeDriverManager().install())
+        service = Service(chromedriver_binary_path)
         driver = webdriver.Chrome(service=service, options=options)
         return driver
     except Exception as e:
