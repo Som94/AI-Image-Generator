@@ -35,10 +35,12 @@ def init_browser():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # Detect Chrome binary location dynamically
-    chrome_binary_path = os.environ.get("GOOGLE_CHROME_BIN", "/usr/bin/google-chrome")
+    # Set correct Chrome binary path for Render
+    chrome_binary_path = "/usr/bin/google-chrome"
     if os.path.exists(chrome_binary_path):
         options.binary_location = chrome_binary_path
+    else:
+        logging.error("Chrome binary not found!")
 
     try:
         service = Service(ChromeDriverManager().install())
@@ -46,7 +48,7 @@ def init_browser():
         return driver
     except Exception as e:
         logging.error(f"Failed to initialize Chrome WebDriver: {e}")
-        raise
+        return None
 
 
 def login_to_bing(driver):
