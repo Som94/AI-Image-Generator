@@ -11,6 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 def install_chrome():
@@ -48,32 +49,32 @@ def install_chrome():
     return chrome_binary_path
 
 
-def install_chromedriver():
-    chromedriver_dir = "/tmp/chromedriver"
-    chromedriver_path = os.path.join(chromedriver_dir, "chromedriver")
+# def install_chromedriver():
+#     chromedriver_dir = "/tmp/chromedriver"
+#     chromedriver_path = os.path.join(chromedriver_dir, "chromedriver")
 
-    os.makedirs(chromedriver_dir, exist_ok=True)
+#     os.makedirs(chromedriver_dir, exist_ok=True)
 
-    subprocess.run(
-        f"wget -q -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/122.0.6261.111/linux64/chromedriver-linux64.zip && "
-        f"unzip -o /tmp/chromedriver.zip -d {chromedriver_dir} && "
-        f"chmod +x {chromedriver_path} && "
-        f"rm -rf /tmp/chromedriver.zip",
-        shell=True,
-        check=True,
-    )
+#     subprocess.run(
+#         f"wget -q -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/122.0.6261.111/linux64/chromedriver-linux64.zip && "
+#         f"unzip -o /tmp/chromedriver.zip -d {chromedriver_dir} && "
+#         f"chmod +x {chromedriver_path} && "
+#         f"rm -rf /tmp/chromedriver.zip",
+#         shell=True,
+#         check=True,
+#     )
 
-    if not os.path.exists(chromedriver_path):
-        raise FileNotFoundError(
-            "ChromeDriver binary not found. Ensure it's downloaded correctly."
-        )
+#     if not os.path.exists(chromedriver_path):
+#         raise FileNotFoundError(
+#             "ChromeDriver binary not found. Ensure it's downloaded correctly."
+#         )
 
-    return chromedriver_path
+#     return chromedriver_path
 
 
 # Install Chrome & ChromeDriver
 chrome_binary = install_chrome()
-chromedriver_binary = install_chromedriver()
+# chromedriver_binary = install_chromedriver()
 
 load_dotenv()
 logging.basicConfig(
@@ -104,7 +105,7 @@ def init_browser():
         logging.error("Chrome binary not found!")
 
     try:
-        service = Service(chromedriver_binary)
+        service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
         return driver
     except Exception as e:
