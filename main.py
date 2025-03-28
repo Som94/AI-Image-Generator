@@ -103,6 +103,8 @@ def init_browser():
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--single-process")
+    options.add_argument("--disable-software-rasterizer")
 
     if os.path.exists(chrome_binary):
         options.binary_location = chrome_binary
@@ -124,14 +126,14 @@ def login_to_bing(driver):
         print("USERNAME ===> ", USERNAME)
         print("PASSWORD ===> ", PASSWORD)
         driver.get("https://login.live.com/")
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.ID, "i0116"))
         ).send_keys(USERNAME + Keys.RETURN)
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.ID, "i0118"))
         ).send_keys(PASSWORD + Keys.RETURN)
         try:
-            WebDriverWait(driver, 5).until(
+            WebDriverWait(driver, 15).until(
                 EC.presence_of_element_located((By.ID, "idBtn_Back"))
             ).click()
         except Exception:
@@ -165,7 +167,7 @@ def generate_image():
         login_to_bing(driver)
 
         driver.get("https://www.bing.com/create")
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.ID, "sb_form_q"))
         )
 
