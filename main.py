@@ -177,7 +177,7 @@ def generate_image():
         print("login_to_bing SUCCESSFULLY")
         driver.get("https://www.bing.com/create")
         print("Line no 201")
-        WebDriverWait(driver, 30).until(
+        WebDriverWait(driver, 60).until(
             EC.presence_of_element_located((By.ID, "sb_form_q"))
         )
         print("Line no 205")
@@ -185,7 +185,7 @@ def generate_image():
         print("Line no 207")
         search_box.send_keys(prompt + Keys.RETURN)
         print("Line no 209")
-        WebDriverWait(driver, 30).until(
+        WebDriverWait(driver, 60).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "img.mimg"))
         )
         print("Line no 213")
