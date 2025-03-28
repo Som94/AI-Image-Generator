@@ -14,40 +14,41 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 def install_chrome():
-    chrome_version = "122.0.6261.111"
-    chrome_zip = "chrome-linux64.zip"
-    chromedriver_zip = "chromedriver-linux64.zip"
+    chrome_dir = "/tmp/chrome-linux64"
+    chrome_zip = "/tmp/chrome-linux64.zip"
+    chrome_binary_path = os.path.join(
+        chrome_dir, "chrome-linux64", "chrome"
+    )  # Corrected path
 
-    chrome_path = "/usr/local/bin/google-chrome"
-    chromedriver_path = "/usr/local/bin/chromedriver"
-
-    if not os.path.exists(chrome_path):
-        logging.info("Downloading and installing Chrome...")
-        subprocess.run(
-            f"wget -q -O {chrome_zip} https://storage.googleapis.com/chrome-for-testing-public/{chrome_version}/linux64/{chrome_zip} && "
-            f"unzip -o {chrome_zip} -d /usr/local/bin/ && "
-            f"mv /usr/local/bin/chrome-linux64/google-chrome {chrome_path} && "
-            f"chmod +x {chrome_path} && "
-            f"rm -rf {chrome_zip} /usr/local/bin/chrome-linux64",
-            shell=True,
-            check=True,
+    # Ensure unzip is installed
+    if (
+        subprocess.run("command -v unzip", shell=True, capture_output=True).returncode
+        != 0
+    ):
+        raise RuntimeError(
+            "Unzip command not found. Install 'unzip' before proceeding."
         )
 
-    if not os.path.exists(chromedriver_path):
-        logging.info("Downloading and installing ChromeDriver...")
-        subprocess.run(
-            f"wget -q -O {chromedriver_zip} https://storage.googleapis.com/chrome-for-testing-public/{chrome_version}/linux64/{chromedriver_zip} && "
-            f"unzip -o {chromedriver_zip} -d /usr/local/bin/ && "
-            f"mv /usr/local/bin/chromedriver-linux64/chromedriver {chromedriver_path} && "
-            f"chmod +x {chromedriver_path} && "
-            f"rm -rf {chromedriver_zip} /usr/local/bin/chromedriver-linux64",
-            shell=True,
-            check=True,
+    os.makedirs(chrome_dir, exist_ok=True)
+
+    subprocess.run(
+        f"wget -q -O {chrome_zip} https://storage.googleapis.com/chrome-for-testing-public/122.0.6261.111/linux64/chrome-linux64.zip && "
+        f"unzip -o {chrome_zip} -d {chrome_dir} && "
+        f"chmod +x {chrome_binary_path} && "
+        f"rm -rf {chrome_zip}",
+        shell=True,
+        check=True,
+    )
+
+    if not os.path.exists(chrome_binary_path):
+        raise FileNotFoundError(
+            "Chrome binary not found. Ensure it's downloaded correctly."
         )
 
+    return chrome_binary_path
 
-# Run Chrome installation before launching WebDriver
-install_chrome()
+
+chrome_binary = install_chrome()
 
 load_dotenv()
 logging.basicConfig(
@@ -73,11 +74,10 @@ def init_browser():
     options.add_argument("--window-size=1920,1080")
 
     # Use the pre-downloaded Chrome binary
-    chrome_binary_path = "/usr/local/bin/google-chrome"
     chromedriver_binary_path = "/usr/local/bin/chromedriver"
 
-    if os.path.exists(chrome_binary_path):
-        options.binary_location = chrome_binary_path
+    if os.path.exists(chrome_binary):
+        options.binary_location = chrome_binary
     else:
         logging.error("Chrome binary not found!")
 
@@ -91,7 +91,7 @@ def init_browser():
 
 
 def login_to_bing(driver):
-    print("Driver ===>111111 ", driver)
+    logging.info("Logging into Bing...")
     try:
         driver.get("https://login.live.com/")
         WebDriverWait(driver, 10).until(
@@ -120,16 +120,18 @@ def home():
 def generate_image():
     response = {"status": False, "message": "", "data": []}
     prompt = request.form.get("desc", "").strip()
-    print("prompt ====> 1111 ")
-    print(prompt)
+
     if not prompt:
         logging.warning("Empty prompt received.")
         response["message"] = "Prompt cannot be empty"
         return make_response(response)
+
     driver = None
     try:
         driver = init_browser()
-        print("Driver ===> ", driver)
+        if not driver:
+            raise RuntimeError("WebDriver initialization failed.")
+
         login_to_bing(driver)
 
         driver.get("https://www.bing.com/create")
@@ -149,10 +151,10 @@ def generate_image():
         pict_url = [
             img.get_attribute("src")
             for img in images
-            if img.get_attribute("src").startswith("http")
+            if img.get_attribute("src") and img.get_attribute("src").startswith("http")
         ]
 
-        logging.info(f"Generated image URL: {pict_url}")
+        logging.info(f"Generated image URLs: {pict_url}")
         if pict_url:
             response["status"] = True
             response["message"] = "Image generated successfully!"
@@ -165,9 +167,11 @@ def generate_image():
         return make_response(response)
 
     finally:
-        driver.quit()
+        if driver:
+            driver.quit()
 
 
+@app.route("/proxy/<path:image_url>")
 def proxy_image(image_url):
     response = requests.get(image_url)
     return Response(response.content, mimetype="image/jpeg")
